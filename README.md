@@ -60,3 +60,76 @@ If the argument len is a Number and ToUint32(len) is equal to len, then the leng
 以上，请注意Array构造器对于单个数值参数的特殊处理，如果仅仅需要使用数组包裹若干参数，不放使用Array.of，具体请看下一节。
 
 ## ES6新增的构造函数方法
+
+剑雨数组的常用性，ES6专门扩展了数组构造器`Array`，新增2个方法：`Array.of`、`Array.from`。
+
+### Array.of
+
+Array.of用于将参数一次转化为数组中的一项，然后返回这个新数组，而不管这个参数是数字还是其他。它基本上与Array构造器功能一致，唯一的区别就在单个数字参数的处理上。如下：
+
+```js
+
+Array.of(8.0); //[8]
+Array(8.0); // [undefined * 8]
+
+```
+
+参数为多个，或单个参数不是数字时，Array.of与Array构造器等同
+
+```js
+
+Array.of(8.0, 5); // [8]
+Array(8.0, 5); // [8, 5]
+Array.of('8'); // ['8']
+Array('8'); //['8']
+
+```
+
+因此，若是需要使用数组包裹元素，推荐优先使用Array.of方法
+
+目前，以下版本的浏览器提供对Array.of的支持
+
+<table>
+	<tr>
+		<td>Chrome</td>
+		<td>Firefox</td>
+		<td>Edge</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>45+</td>
+		<td>25+</td>
+		<td>✔️</td>
+		<td>9.0+</td>
+	</tr>
+</table>
+
+计时其他版本浏览器不支持也不必担心，由于Array.of与Array构造器的这种高度相似性，实现一个polyfill十分简单。如下：
+
+```js
+
+if (!Array.of){
+	Array.of = function(){
+		return Array.prototype.slice.call(arguments);
+	}
+}
+
+```
+
+### Array.from
+
+语法：Array.from(arrayLike[, processingFn[, thisArg]])
+
+Array.from的设计初衷是快速便捷的基于其他对象创建新数组，准确来说就是从一个类似数组的可迭代对象创建一个新的数组实例，通俗一点，只要一个对象有迭代器，Array.from就能把它变成一个数组（当然，是返回新的数组，不改变原对象）。
+
+从语法上看，Array.form拥有三个形参，第一个为类似数组的对象，必选。第二个为加工函数，新生成的数组会经过该函数的加工再返回。第三个为this作用于，表示加工函数执行时this的值。后两个参数都是可选的。我们来看看用法。
+
+```js
+
+var obj = {0: 'a', 1: 'b', 2: 'c', length: 3};
+Array.from(obj, function(value, index){
+	console.log(value, index, this, arguments.length);
+	return value.repeat(3); // 必须制定返回值，否则返回undefined
+}, obj);
+
+```
