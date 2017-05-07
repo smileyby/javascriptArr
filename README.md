@@ -225,6 +225,63 @@ Object.prototype.toString.apply(a) === '[object Array]'
 
 ```js
 
+var a = {
+	_proto_: Array.prototype
+};
+// 分别在控制台试运行以下代码
+// 1.基于instanceof
+a instanceof Array; // true
+// 2.基于constructor
+a.constructor === Array; // true
+// 3.基于Object.prototype.isPrototypeOf
+Array.prototype.isPrototypeOf(a); //true
+// 4.基于getPrototypeOf
+Object.getPrototypeOf(a) === Array.prototype; // true
+ 
+```
 
+以上，4种方法将会全部返回`true`，为什么呢？我们只是手动指定了某个对象的`_proto_`属性为`Array.prototype`，便导致了该对象继承了Array对象，这种好不负责的继承方式，使得基于继承的判断方案瞬间土崩瓦解。
+
+不仅如此，我们还知道，Array是堆数据，变量指向的只是它的引用地址，因此每个页面的Array对象引用的地址都是一样的。iframe中声明的数组，它的构造函数是iframe中的Array对象。如果在iframe声明了一个数组`X`，将其赋值给父页面的变量`Y`，那么在父页面使用`y instanceof Array`，结果一定是`false`的。而最后一种返回的是字符串，不会存在引用问题。实际上多页面或系统之间的交互只有字符串能够畅行无阻。
+
+相反，使用Array.isArray则非常简单，如下：
+
+```js
+
+Array.isArray([]); // true
+Array.isArray({0: 'a', length: 1}); // false
 
 ```
+
+目前，一下版本浏览器提供对Array.isArray的支持
+
+<table>
+	<tr>
+		<td>Chrome</td>
+		<td>Firefox</td>
+		<td>IE</td>
+		<td>Opera</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>5+</td>
+		<td>4+</td>
+		<td>9+</td>
+		<td>10.5+</td>
+		<td>5+</td>
+	</tr>
+</table>
+
+实际上，通过`Object.prototype.toString`去判断一个值的类型，也是个大主流库的标准。因此Array.isArray的polyfill通常长这样：
+
+```js
+
+if(!Array.isArray){
+	Array.isArray = function(arg) {
+		return Object.prototype.toString.call(arg) === '[object Array]';
+	}
+}
+
+```
+
+## 数组推导
