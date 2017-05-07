@@ -133,3 +133,98 @@ Array.from(obj, function(value, index){
 }, obj);
 
 ```
+
+执行结果如下：
+
+![](images/1.png)
+
+可以看到加工函数的this作用域被obj对象取代，也可以看到加工函数默认拥有两个形参，分别为迭代当前元素的值和其索引。
+
+注意，一旦使用加工函数，必须明确指定返回值，否则将饮食返回undefined，最终生成的数组编程一个只包含若干个undefined元素的空数组。
+
+实际上，如果不需要指定this，加工函数完全可以是一个箭头函数，上述代码可以简化如下：
+
+```js
+
+Array.from(obj, (value) => value.repeat(3));
+
+```
+
+除了上述obj对象外，拥有迭代器的对象还包括这些：`String`、`Set`、`Map`、`arguments`等。
+
+Array.from统统可以处理，如下所示：
+
+```js
+
+// String
+Array.from('abc'); // ['a', 'b', 'c']
+// Set
+Array.from(new Set(['abc', 'def']));
+// Map
+Array.from(new Map([[1, 'abc'], [2, 'def']]));
+// 提升讷航的类数组对象arguments
+function fn(){
+	return Array.from(arguments)
+}
+fn(1, 2, 3); //[1, 2, 3]
+
+```
+
+到这里你可能以为Array.from就讲完了，实际上还有一个重要的扩展场景必须提一下。比如说生成一个从0到指定数字的新数组，Array.from就可以轻易做到。
+
+```js
+
+Array.from({lentgh: 10}, (v, i) => i); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+```
+
+后面我们将会看到，利用数组的keys方法实现上述功能，可能还要简单一些。
+
+目前，一下版本浏览器提供了对Array.from的支持
+
+<table>
+	<tr>
+		<td>Chrome</td>
+		<td>Firefox</td>
+		<td>Edge</td>
+		<td>Opera</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>45+</td>
+		<td>32+</td>
+		<td>✔️</td>
+		<td>✔️</td>
+		<td>9.0+</td>
+	</tr>
+</table>
+
+## Array.isArray
+
+顾名思义，Array.isArray用来判断一个变量是否是数组类型。JS的弱类型机制导致判断变量类型是初级前端开发者的必考题，一般我都会将其作为考察候选人第一题，然后基于此展开。在ES5提供该方法之前，我们至少有如下2种方式去判断一个值是否是数组：
+
+```js
+
+var a = [];
+// 1.基于instanceof
+a instanceof Array
+// 2.基于constructor
+a.constructor === Array
+// 3.基于Object.prototype.isPrototypeOf
+Array.prototype.idPrototypeOf(a);
+// 4.基于getPrototypeOf
+Object.getPrototypeOf(a) === Array.prototype;
+// 5.基于Object.prototype.toString
+Object.prototype.toString.apply(a) === '[object Array]'
+
+```
+
+以上，除了`Object.prototype.toString`外，其他方法都不能正确判断变量的类型。
+
+要知道，代码的运行环境十分复杂，一个变量可能使用浑身解数去迷惑它的创造者，且看：
+
+```js
+
+
+
+```
