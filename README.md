@@ -285,3 +285,153 @@ if(!Array.isArray){
 ```
 
 ## 数组推导
+
+ES6对数组的增强不止是体现在api上，还包括语法糖。比如说`for of`，它就是借鉴其他语言而成的语法糖，这种基于原数组使用`for of`生成新数组的语法糖，叫做数组推导。数组推导最初起草在ES6的草案中，但在第27版（2014年8月）中被移除，目前只有firefox v30+支持，推导有风向，使用需谨慎。索性，如今这些语言都还支持推导：CoffeeScript、Python、Haskell、Clojure，我们可以从中一窥端倪。这里我们以python的`for in`推导打个比方：
+
+```
+
+# python for in 推导
+a = [1, 2, 3, 4]
+print [i * i for i in a if i == 3] # [9]
+
+```
+
+如下是SpiderMonkey引擎（Firefox）之前基于ES4规范实现的数组推导(与python的推导十分相似)：
+
+```
+	
+[i * i for (i of a)] // [1, 4, 9, 16]
+
+```
+
+ES6中数组有关的for of在ES4的基础上进一步演化，for关键字居首，in在中间，最后才是运算表达式。如下：
+
+```
+
+[for (i of [1, 2, 3, 4]) i * i] // [1, 4, 9, 16]
+
+```
+
+同python的示例，ES6中数组有关的for of也可以使用if语句：
+
+```
+
+// 单个if
+[for (i of [1, 2, 3, 4]) if (i == 3) i * i] // [9]
+// 甚至是多个if
+[for (i of [1, 2, 3, 4]) if (i > 2) if (i < 4) i * i] // [9]
+
+```
+
+更为强大的是，ES6数组推导还允许多重for of。
+
+```
+
+[for (i of [1, 2, 3]) for (j of [10, 100]) i * j] // [10, 100, 20, 200, 30, 300]
+
+```
+
+甚至，数组推导还能够嵌入另一个数组推导中。
+
+```
+	
+[for (i of [1, 2, 3]) [for (j of [10, 100]) i * j] ] // [[10, 100], [20, 200], [30, 300]]
+
+
+```
+
+对于上述两个表达式，前者和后者唯一的区别，就在于后者的第二个推导是先返回数组，然后与外部的推导再进行一次运算。
+
+除了多个数组推导嵌套外，ES6的数组推导还会为每次迭代分配一个新的作用域（目前Firefox也没有为每次迭代创建新的作用域）：
+
+```
+
+// ES6规范
+[for (x of [0, 1, 2]) () => x][0]() // 0
+// Firefox运行
+[for (x of [0, 1, 2]) () => x][0]() // 2
+
+```
+
+通过上面的实例，我们看到使用数组推导来创建新数组比forEach，map，filter等遍历方法更加简洁，只是非常可惜，它不是标准规范。
+
+ES6不仅新增了对Array构造器相关API，还新增了8个原型的方法。接下来我会在原型方法的介绍中穿插着ES6相关方法的讲解，请耐心往下读。
+
+## 原型
+
+继承的常识告诉我们，JS中素有的数组方法均来自于Array.prototype，和其他构造函数一样，你可以通过扩展`Array`的`prototype`属性上的方法来给所有数组实例增加方法。
+
+值得一说的是，Array.prototype本身就是一个数组
+
+```js
+
+Array.isArray(Array.prototype) // true
+console.log(Array.prototype.length); //0
+
+```
+
+以下方法可以进一步验证：
+
+```js
+
+console.log([]._proto_.length); // 0
+console.log([]._proto_); // [Symbol(Symbol.unscopables): Object]
+
+```
+
+有关Symbol(Symbol.unscopables)的知识，这个理不在详述，具体请移步后续章节。
+
+## 方法
+
+数组远行提供的方法非常之多，主要分为三种，一种是会改变自身值的，一种是不会改变自身值的，另外一种就是遍历方法。
+
+由于Array.prototype的某些属性被设置为[[DontEnum]]，天赐不能用一般的方法进行遍历，我们可以通过如下方法获取Array.prototype的所有方法：
+
+```js
+
+Object.getOwnPropertyNames(Array.prototype); // ["length", "constructor", "toString", "toLocaleString", "join", "pop", "push", "reverse", "shift", "unshift", "slice", "splice", "sort", "filter", "forEach", "some", "every", "map", "indexOf", "lastIndexOf", "reduce", "reduceRight", "copyWithin", "find", "findIndex", "fill", "includes", "entries", "keys", "concat"]
+
+```
+
+### 改变自身值的方法（9个）
+
+基于ES6，改变自身值的方法一共有9个，分别是pop、push、reverse、shift、sort、splice、unshift，以及两个ES6新增的方法copyWithin和fill。
+
+对于能改变自身值的数组方法，日常开发中需要特别注意，尽量便在玄幻便利中去改变原数组的项。接下来我们一起来深入了解这些方法。
+
+#### pop
+
+pop()方法删除一个数组中的左后一个元素，并且返回这个元素。如果是栈的话，这个过程就是栈顶弹出。
+
+```js
+
+var array = ["cat", "dog", "cow", "chicken", "mouse"];
+var item = array.pop();
+console.log(array); // ["cat", "dog", "cow", "chicken"]
+console.log(item); // mouse
+
+```
+
+由于设计上的巧妙，pop方法可以应用在类数组对象上，如下：
+
+```js
+
+var o = {0:"cat", 1:"dog", 2:"cow", 3:"chicken", 4:"mouse", length:5}
+var item = Array.prototype.pop.call(o);
+console.log(o); // Object {0: "cat", 1: "dog", 2: "cow", 3: "chicken", length: 4}
+console.log(item); // mouse
+
+```
+
+但如果类数组对象不具有length属性，那么该对象被创建length属性，length属性值为0.如下：
+
+```js
+
+var o = {0:"cat", 1:"dog", 2:"cow", 3:"chicken", 4:"mouse"}
+var item = Array.prototype.pop.call(o);
+console.log(array); // Object {0: "cat", 1: "dog", 2: "cow", 3: "chicken", 4: "mouse", length: 0}
+console.log(item); // undefined
+
+```
+
+
