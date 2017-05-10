@@ -434,4 +434,52 @@ console.log(item); // undefined
 
 ```
 
+#### push
+
+push()方法添加一个或者多个元素到数组末尾，并返回数组新的长度。如果是栈的话，这个过程就是栈顶压入。
+
+语法：arr.push(element1,...,elementN)
+
+```js
+
+var array = ["football", "basketball", "volleyball", "Table tennis", "badminton"];
+var i = array.push("golfball");
+console.log(array); // ["football", "basketball", "volleyball", "Table tennis", "badminton", "golfball"]
+console.log(i); // 6
+
+```
+
+同pop方法一样，push方法也可以应用到类数组对象上，如果length不能被转成一个数值或者不存在length属性，则插入的元素索引为0，且length属性不存在时，将会创建它。
+
+```js
+
+var o = {0: "football", 1: "basketball"};
+var i = Array.prototype.push.call(o, "golfball");
+console.log(o); // Object {0: "golfball", 1: "basketball", length: 1}
+console.log(i); // 1
+
+```
+
+实际上，push方法是根据length属性来决定从哪里开始插入给定值。
+
+```js
+
+var o = {0:"football", 1:"basketball",length:1};
+var i = Array.prototype.push.call(o,"golfball");
+console.log(o); // Object {0: "football", 1: "golfball", length: 2}
+console.log(i); // 2
+
+```
+
+利用push根据length属性插入元素的特点，可以实现数组的合并，如下：
+
+```js
+
+var array = ["football", "basketball"];
+var array2 = ["volleyball", "golfball"];
+var i = Array.prototype.push.apply(array,array2);
+console.log(array); // ["football", "basketball", "volleyball", "golfball"]
+console.log(i); // 4
+
+```
 
