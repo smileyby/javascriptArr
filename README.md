@@ -483,3 +483,82 @@ console.log(i); // 4
 
 ```
 
+#### reverse
+
+reverse()方法颠倒数组中元素的位置，第一个会成为最后一个，最后一个会成为第一个，该方法返回对数组的引用。
+
+语法：arr.reverse()
+
+```js
+
+var array = [1,2,3,4,5];
+var array2 = array.reverse();
+console.log(array); // [5,4,3,2,1]
+console.log(array2 === array) // true
+
+```
+
+同上，reverse也是鸭式辩型的受益者，调到元素的范围受length属性制约。如下：
+
+```js
+
+var o = {0:"a", 1:"b", 2:"c", length:2};
+var o2 = Array.prototype.reverse.call(o);
+console.log(o); // Object {0: "b", 1: "a", 2: "c", length: 2}
+console.log(o === o2); // true
+
+```	
+
+如果length属性小于2或者length属性不为数值，那么原类数组对象将没有变化。及时length属性不存在，该对象也不会去创建length属性。特别的是，当length属性较大时，类数组对象的【索引】会尽可能的项length看齐。如下：
+
+```js
+
+var o = {0:"a", 1:"b", 2:"c",length:100};
+var o2 = Array.prototype.reverse.call(o);
+console.log(o); // Object {97: "c", 98: "b", 99: "a", length: 100}
+console.log(o === o2); // true
+
+```	
+
+#### shift
+
+shift()方法删除数组第一个元素，并返回这个元素。如果是栈的话，这个过程就是栈底弹出。
+
+语法：arr.shift()
+
+```js
+
+var array = [1,2,3,4,5]
+var item = array.shift();
+console.log(array); // [2,3,4,5]
+console.log(item); // 1
+
+```								
+同样受益于鸭式辩型，对于类数组对象，shift仍然能够处理。如下：
+
+```js
+
+var o = {0:"a",1:"b",2:"c",length:3};
+var item = Array.prototype.shift.call(o);
+console.log(o); // Object {0:"b",1:"c",length: 2}
+console.log(item); // a
+
+```
+
+如果类数组对象length属性不存在，将添加length属性，并初始化为0.如下：
+
+```js
+
+var o = {0:"a", 1:"b", 2:"c"}
+var item = Array.prototype.shift.call(o);
+console.log(o); // Object {0:"a", 1:"b", 2: "c", length: 0}
+console.log(item); // undefined
+
+
+```		
+
+#### sort
+																				
+
+
+
