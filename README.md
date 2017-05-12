@@ -580,8 +580,62 @@ console.log(array3); // [1, 10, 20, 3]
 
 如果指明了comparefn，数组将按照调用该函数的返回值来排序。若a和b是两个将要比较的元素：
 
-*	
-																				
+*	若 comparefn(a, b) < 0，那么a 将排到 b 前面；
+*	若 comparefn(a, b) = 0，那么a 和 b 相对位置不变；
+*	若 comparefn(a, b) > 0，那么a , b 将调换位置；	
 
+如果数组元素为数字，则排序函数comparefn格式如下所示：
+
+```js
+
+function compare(a, b){
+	return a-b;
+}
+
+```
+
+如果十足元素为非ASCII字符的字符串（如包含类似 e、é、è、a、ä 或中文字符等非英文字符的字符串），则需要使用String.localeCompare。下面这个函数将排到正确的顺序。
+
+```js
+
+var array = ['互','联','网','改','变','世','界'];
+var array2 = array.sort();
+var array = ['互','联','网','改','变','世','界']; // 重新赋值,避免干扰array2
+var array3 = array.sort(function (a, b) {
+  return a.localeCompare(b);
+});
+console.log(array2); // ["世", "互", "变", "改", "界", "网", "联"]
+console.log(array3); // ["变", "改", "互", "界", "联", "世", "网"]
+
+```
+
+如上，『互联网改变世界』这个数组，sort函数默认按照数组元素unicode字符串形式进行排序，然而实际上，我们期望的是按照拼音先后顺序进行排序，显然String.localeCompare 帮助我们达到了这个目的。
+
+为什么上面测试中需要重新给array赋值呢，这是因为sort每次排序时改变的是数组本身，并且返回数组引用。如果不这么做，经过连续两次排序后，array2 和 array3 将指向同一个数组，最终影响我们测试。array重新赋值后就断开了对原数组的引用。
+	
+同上，sort一样受益于鸭式辨型，比如：
+
+```js
+
+var o = {0:'互',1:'联',2:'网',3:'改',4:'变',5:'世',6:'界',length:7};
+Array.prototype.sort.call(o,function(a, b){
+  return a.localeCompare(b);
+});
+console.log(o); // Object {0: "变", 1: "改", 2: "互", 3: "界", 4: "联", 5: "世", 6: "网", length: 7}, 可见同上述排序结果一致
+
+```	
+
+注意：使用sort的鸭式辨型特性时，若类数组对象不具有length属性，它并不会进行排序，也不会为其添加length属性。					
+
+```js
+
+var o = {0:'互',1:'联',2:'网',3:'改',4:'变',5:'世',6:'界'};
+Array.prototype.sort.call(o,function(a, b){
+  return a.localeCompare(b);
+});
+console.log(o); // Object {0: "互", 1: "联", 2: "网", 3: "改", 4: "变", 5: "世", 6: "界"}, 可见并未添加length属性
+
+
+```
 
 
