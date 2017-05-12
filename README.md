@@ -558,6 +558,29 @@ console.log(item); // undefined
 ```		
 
 #### sort
+
+sort()方法对数组元素进行排序，并返回这个数组。sort方法比较复杂，这里我将多花些篇幅来讲这块。
+
+语法：arr.sort([comparefn])
+
+comparefn是可选的，如果省略，数组将按照各自转换为字符串的Unicode（万国码）位点顺序排序，例如“Boy”将排在“apple”之前。当对数字排序的时候，25将排到8之前，因为转换为字符串后，“25”将比“8”靠前。例如：
+
+```js
+
+var array = ["apple","Boy","Cat","dog"];
+var array2 = array.sort();
+console.log(array); // ["Boy","Cat","apple","dog"]
+console.log(array2 == array); // true
+
+array = [10, 1, 3, 20];
+var array3 = array.sort();
+console.log(array3); // [1, 10, 20, 3]
+
+```
+
+如果指明了comparefn，数组将按照调用该函数的返回值来排序。若a和b是两个将要比较的元素：
+
+*	
 																				
 
 
