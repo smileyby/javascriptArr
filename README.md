@@ -638,4 +638,82 @@ console.log(o); // Object {0: "互", 1: "联", 2: "网", 3: "改", 4: "变", 5: 
 
 ```
 
+#### 使用映射改善排序
+
+comparefn如果需要对数组元素多次转换以实现排序，那么使用map辅助排序将是个不错的选择。基本思想就是讲数组的每个元素实际比较的值取出来，排序后将数组恢复。
+
+```js
+
+// 需要被排序的数组
+var array = ['dog', 'Cat', 'Boy', 'apple'];
+// 对需要排序的数字和位置的临时存储
+var mapped = array.map(function(el, i) {
+  return { index: i, value: el.toLowerCase() };
+})
+// 按照多个值排序数组
+mapped.sort(function(a, b) {
+  return +(a.value > b.value) || +(a.value === b.value) - 1;
+});
+// 根据索引得到排序的结果
+var result = mapped.map(function(el){
+  return array[el.index];
+});
+console.log(result); // ["apple", "Boy", "Cat", "dog"]
+
+```
+
+#### 奇怪的chrome
+
+实际上，ECMAscript规范中并未规定具体的sort算法，这就势必导致各个浏览器不尽相同的sort算法，请看sort方法在Chrome浏览器下的表现：
+
+```js
+
+var array = [{ n: "a", v: 1 }, { n: "b", v: 1 }, { n: "c", v: 1 }, { n: "d", v: 1 }, { n: "e", v: 1 }, { n: "f", v: 1 }, { n: "g", v: 1 }, { n: "h", v: 1 }, { n: "i", v: 1 }, { n: "j", v: 1 }, { n: "k", v: 1 }, ];
+array.sort(function (a, b) {
+	return a.v - b.v;
+});
+for (var i = 0,len = array.length; i < len; i++) {
+    console.log(array[i].n);
+}
+// f a c d e b g h i j k
+
+```
+
+由于v值相等，array数组排序前后应该不变，然而Chrome却表现异常，而其他浏览器(如IE 或 Firefox) 表现正常。
+
+```js
+
+var array = [{ n: "a", v: 1 }, { n: "b", v: 1 }, { n: "c", v: 1 }, { n: "d", v: 1 }, { n: "e", v: 1 }, { n: "f", v: 1 }, { n: "g", v: 1 }, { n: "h", v: 1 }, { n: "i", v: 1 }, { n: "j", v: 1 },];
+array.sort(function (a, b) {
+  return a.v - b.v;
+});
+for (var i = 0,len = array.length; i < len; i++) {
+  console.log(array[i].n);
+}
+// a b c d e f g h i j
+
+```
+
+从a到j刚好10条数据
+
+那么我么你该如何规避Chrome浏览器的这种“bug”呢？其实很简单，只需略动手脚，改变排序方法的返回值即可，如下：
+
+```js
+
+arr.sort(function (a, b) {
+	return a.v - b.v || array.indexOf(a)-array.indexOf(b);
+})
+
+```
+
+是数组烦人sort方法需要注意一点各个浏览器针对sort方法内部算法不尽相同，排序函数尽量返回-1,0,1三种不同的值，不要尝试返回true和false等其他数值，天威可能导致不可靠的排序结果。
+
+#### 问题分析
+
+sort方法传入的排序函数如果返回布尔值会导致什么样的结果呢？
+
+一下是常见的浏览器以及脚本引擎：
+
+小复杂！！！！！！
+
 
