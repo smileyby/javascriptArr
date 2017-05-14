@@ -714,6 +714,136 @@ sort方法传入的排序函数如果返回布尔值会导致什么样的结果�
 
 一下是常见的浏览器以及脚本引擎：
 
-小复杂！！！！！！
+<table>
+	<tr>
+		<td>Browser Name</td>
+		<td>ECMAScript Engine</td>
+	</tr>
+	<tr>
+		<td>Internet Explorer 6 - 8</td>
+		<td>JScript</td>
+	</tr>
+	<tr>
+		<td>Internet Explorer 9 - 10</td>
+		<td>Chakra</td>
+	</tr>
+	<tr>
+		<td>Firefox</td>
+		<td>SpiderMonkey, IonMonkey, TraceMonkey</td>
+	</tr>
+	<tr>
+		<td>Chrome</td>
+		<td>V8</td>
+	</tr>
+	<tr>
+		<td>Safair</td>
+		<td>JavaScriptCore(SquirrelFish Extreme)</td>
+	</tr>
+	<tr>
+		<td>Opera</td>
+		<td>	Carakan</td>
+	</tr>
+</table>
+
+分析一下代码，语气将数组元素进行升序排序：
+
+```js
+
+var array = [7,6,5,4,3,2,1,0,8,9];
+var comparefn = function (x,y) {
+	return x > y;
+};
+array.sort(comparefn);
+
+```
+
+代码中，comparefn函数返回值为bool类型，并非为规范规定的-1,0,1值。那么执行代码，各JS脚本引擎实现情况如何？
+
+<table>
+	<tr>
+		<td></td>
+		<td>输出结果</td>
+		<td>是否符合预期</td>
+	</tr>
+	<tr>
+		<td>JScript</td>
+		<td>[2, 3, 5, 1, 4, 6, 7, 0, 8, 9]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>Carakan/td>
+		<td>[0, 1, 3, 8, 2, 4, 9, 5, 6, 7]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>Chakra & JavaScriptCore</td>
+		<td>[7, 6, 5, 4, 3, 2, 1, 0, 8, 9]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>SpiderMonkey</td>
+		<td>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</td>
+		<td>是</td>
+	</tr>
+	<tr>
+		<td>V8</td>
+		<td>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</td>
+		<td>是</td>
+	</tr>
+</table>
+
+### 根据表中数据可见，当数组内元素数小于等于10时，现象如下：
+
+*	JScript&Carakan排序结果有误
+*	Chakra&JavaScriptCore看起来没有进行排序
+*	SpliderMonkey返回了息预期正确结果
+*	V8暂时看起来排序正确
+
+### 将数组元素扩大至11位，现象如下：
+
+```js
+
+var array = [7, 6, 5, 4, 3, 2, 1, 0, 10, 9, 8];
+var comparefn = function (x, y) {
+  return x > y;
+};
+array.sort(comparefn);
+
+```
+
+<table>
+	<tr>
+		<td>JavaScript引擎</td>
+		<td>输出结果</td>
+		<td>是否符合预期</td>
+	</tr>
+	<tr>
+		<td>JScript</td>
+		<td>[2, 3, 5, 1, 4, 6, 7, 0, 8, 9, 10]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>Carakan/td>
+		<td>[0, 1, 3, 8, 2, 4, 9, 5, 10, 6, 7]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>Chakra & JavaScriptCore</td>
+		<td>[7, 6, 5, 4, 3, 2, 1, 0, 10, 8, 9]</td>
+		<td>否</td>
+	</tr>
+	<tr>
+		<td>SpiderMonkey</td>
+		<td>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</td>
+		<td>是</td>
+	</tr>
+	<tr>
+		<td>V8</td>
+		<td>[5, 0, 1, 2, 3, 4, 6, 7, 8, 9, 10]</td>
+		<td>否</td>
+	</tr>
+</table>
+
+
 
 
