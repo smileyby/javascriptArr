@@ -844,6 +844,78 @@ array.sort(comparefn);
 	</tr>
 </table>
 
+根据表中数据可见，当数组元素个数大于10时：
+
+*	JScript&Carakan排序结果有误
+*	Chakra&JavaScriptCore看起来没有进行排序
+*	SpliderMonkey返回预期的正确结果
+*	V8**排序结果由正确转为不正确**
+
+### splice
+
+splice()方法用新元素替换就元素的方式来修改数组。它是一个常用的方法，复杂的数组操作场景经常会有它的身影，特别是需要维持元素组引用时，就地删除或者新增元素，splice是最适合的。
+
+语法：arr.splice(start,deleteCount[,item1[,item2[,...]]])
+
+start指定从哪一位开始修改内容。如果唱过了数组长度，则从数组末尾开始添加内容；如果是负值，则其指定的索引位置等同于length+start（length为数组的长度），表示从数组末尾开始的第start位。
+
+deleteCount指定要删除的元素个数，若等于0，则不删除。这种情况下，至少应该添加以为新元素，若大于start之后的元素总和，则start及之后的元素将被删除。
+
+itemN指定新增元素，如果缺省，则该方法只删除数组元素。
+
+返回值由数组中被删除元素组成的数组，如果没有删除，则返回一个空数组
+
+下面来举例子：
+
+```js
+
+var array = ["apple","boy"];
+var splices = array.splice(1,1);
+console.log(array); // ["apple"]
+console.log(splices); // ["boy"] ,可见是从数组下标为1的元素开始删除,并且删除一个元素,由于itemN缺省,故此时该方法只删除元素
+array = ["apple","boy"];
+splices = array.splice(2,1,"cat");
+console.log(array); // ["apple", "boy", "cat"]
+console.log(splices); // [], 可见由于start超过数组长度,此时从数组末尾开始添加元素,并且原数组不会发生删除行为
+array = ["apple","boy"];
+splices = array.splice(-2,1,"cat");
+console.log(array); // ["cat", "boy"]
+console.log(splices); // ["apple"], 可见当start为负值时,是从数组末尾开始的第-start位开始删除,删除一个元素,并且从此处插入了一个元素
+array = ["apple","boy"];
+splices = array.splice(-3,1,"cat");
+console.log(array); // ["cat", "boy"]
+console.log(splices); // ["apple"], 可见即使-start超出数组长度,数组默认从首位开始删除
+array = ["apple","boy"];
+splices = array.splice(0,3,"cat");
+console.log(array); // ["cat"]
+console.log(splices); // ["apple", "boy"], 可见当deleteCount大于数组start之后的元素总和时,start及之后的元素都将被删除
+
+```
+
+同上splice一样受益于鸭式辩型，比如：
+
+```js
+
+var o = {0:"apple",1:"boy",length:2};
+var splices = Array.prototype.splice.call(o,1,1);
+console.log(o); // Object {0: "apple", length: 1}, 可见对象o删除了一个属性,并且length-1
+console.log(splices); // ["boy"]
+
+```
+
+注意：如果类数组对象没有length属性，splice将为该类数组对象添加length属性，并初始化为0.
+
+如果需要删除数组中一个已存在的元素，可参考如下：
+
+```js
+
+var array = ['a','b','c'];
+array.splice(array.indexOf('b'),1);
+
+```
+
+
+
 
 
 
