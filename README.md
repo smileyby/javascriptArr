@@ -914,7 +914,44 @@ array.splice(array.indexOf('b'),1);
 
 ```
 
+### unshift
 
+unshift() 方法用于在数组开始处插入一些元素（就像是栈底插入），并返回新数组的长长度。
+
+语法：arr.unshift(element1,...elementN)
+
+```js
+
+var array = ['red', 'green', 'blue'];
+var length = array.unshift('yellow');
+console.log(array); // ['yellow','red','green','blue']
+console.log(length); // 4
+
+```
+
+如果给unshift方法传入一个类数组呢？
+
+```js
+
+var array = ["red", "green", "blue"];
+var length = array.unshift(["yellow"]);
+console.log(array); // [["yellow"], "red", "green", "blue"]
+console.log(length); // 4, 可见数组也能成功插入
+
+```
+
+同上，unshift也受益于鸭式辨型，呈上栗子：
+
+```js
+
+var o = {0:"red", 1:"green", 2:"blue",length:3};
+var length = Array.prototype.unshift.call(o,"gray");
+console.log(o); // Object {0: "gray", 1: "red", 2: "green", 3: "blue", length: 4}
+console.log(length); // 4
+
+```
+
+注意：如果类数组对象不指定length，则返回结果是这样的`Object {0: "gray",1: "green",2: "blue",length: 1}`,unshift会认为数组长度为0，此时姜葱对象下表为0的位置开始插入，相应位置属性将被替换，此时初始化类数组对象的length属性会插入元素个数。
 
 
 
