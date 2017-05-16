@@ -1048,6 +1048,30 @@ console.log(o2); // [{0:"a", 1:"b", 2:"c", length:3}, 'd', {3:'e', 4:'f', length
 
 可见，类数组对象合并后返回的是依然是数组，并不是我们期望的对象。
 
+### join
+
+join()方法将数组的所有元素连接成一个字符串。
+
+语法:arr.join([separator = ‘,’]) separator可选，缺省默认为逗号。
+
+```js
+
+var array = ['We', 'are', 'Chinese'];
+console.log(array.join()); // "We,are,Chinese"
+console.log(array.join('+')); // "We+are+Chinese"
+console.log(array.join('')); // "WeareChinese"
+
+```
+
+同上,join一样受益于鸭式辩型，如下：
+
+```js
+
+var o = {0:"We", 1:"are", 2:"Chinese", length:3};
+console.log(Array.prototype.join.call(o,'+')); // "We+are+Chinese"
+console.log(Array.prototype.join.call('abc')); // "a,b,c"
+
+```
 
 
 
