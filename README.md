@@ -953,6 +953,101 @@ console.log(length); // 4
 
 注意：如果类数组对象不指定length，则返回结果是这样的`Object {0: "gray",1: "green",2: "blue",length: 1}`,unshift会认为数组长度为0，此时姜葱对象下表为0的位置开始插入，相应位置属性将被替换，此时初始化类数组对象的length属性会插入元素个数。
 
+### copyWithin(ES6)(神马鬼！！)
+
+copyWithin()方法基于**ECMAScript 2015（ES6）规范**，用于数组内元素之间的替换，即替换元素和别替换元素均为数组内的元素。
+
+语法： arr.copyWithin(target, start[,end = this.length])
+
+target指定被替换元素的索引，start指定替换元素起始的索引，end可选，指的是替换元素结束为止的索引。
+
+如果start为负，则其指定的索引位置等同于length+start，length为数组的长度。end也是如此。
+
+```js
+
+var array = [1,2,3,4,5];
+var array2 = array.copyWithin(0,3);
+console.log(array===array2,array); // true [4,5,3,4,5]
+
+var array = [1,2,3,4,5];
+console.log(array.copyWithin(0,3,4)); // [4,2,3,4,5]
+
+var array = [1,2,3,4,5];
+console.log(array.copyWithin(0,-2,-1)); // [4,2,3,4,5]
+
+```
+
+### fill(ES6)
+
+fill()方法基于ECMAScript 2015 （ES6）规范，它同样用于数组元素替换，但与copyWithin略有不同，它主要用于将数组指定区间内的元素替换为某个值。
+
+语法：arr.fill(value,start[,end = this.length])
+
+value指定被替换的值，start指定替换元素起始位置的索引，end可选，指定是替换元素结束为止的索引。
+
+如果start为负，则其指定的索引位置等同于length+start,length为数组的长度。end也是如此。
+
+```js
+
+var array = [1,2,3,4,5];
+var array2 = array.fill(10,0,3);
+console.log(array===array2,array2); // true [10,10,10,4,5],可见数组区间的[0,3]的元素全部被替换为10
+
+```
+
+同上，fill一样受益于鸭式辩型，例如：
+
+```js
+
+var 0 = {0:1,1:2,2:3,3:4,4:5,length:5};
+var 02 = Array.prototype.fill.call(o,10,0,2);
+console.log(o===o2,o2); // true Object {0: 10, 1: 10, 2: 3, 3: 4, 4: 5, length: 5}
+
+```
+
+## 不会改变自身的方法（9个）
+
+基于ES7，不会改变自身的方法一共有九个，分别是concat，join，slice，toString，toLocateString，indexOf，lastIndexOf，未标准的toSource以及ES7新增的方法includes。
+
+### concat
+
+concat()方法将传入的数组或者元素与原数组合并，组成一个新的数组并返回。
+
+语法：arr.concat(value1,value2,...valueN)
+
+```js
+
+var array = [1,2,3];
+var array2 = array.concat(4,[5,6],[7,8,9]);
+console.log(array2); // [1,2,3,4,5,6,7,8,9]
+console.log(array); // [1,2,3] 可见原数组并未被修改
+
+```
+
+若在concat方法中不传入参数，那么将给予原数组**浅复制**生成一个一模一样的新数组（指向新的地址空间）。
+
+```js
+
+var array = [{a: 1}];
+var array3 = array.concat();
+console.log(array3); // [{a: 1}]
+console.log(array3 === array); // false
+console.log(array[0] === array3[0]); // true，新旧数组第一个元素依旧共用一个同一个对象的引用
+
+```
+
+同上，concat一样受益于鸭式辨型，但其效果可能达不到我们的期望，如下：
+
+```js
+
+var o = {0:"a", 1:"b", 2:"c",length:3};
+var o2 = Array.prototype.concat.call(o,'d',{3:'e',4:'f',length:2},['g','h','i']);
+console.log(o2); // [{0:"a", 1:"b", 2:"c", length:3}, 'd', {3:'e', 4:'f', length:2}, 'g', 'h', 'i']
+
+```
+
+可见，类数组对象合并后返回的是依然是数组，并不是我们期望的对象。
+
 
 
 
