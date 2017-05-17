@@ -1125,5 +1125,39 @@ console.log(o2); // [{color:"yellow"}] ,毫无违和感...
 
 ```
 
+### toString
+
+toString()方法返回数组的字符串形式，该字符串由数组中的每个元素的`toString()`返回值经调用`json()`方法连接（由逗号隔开组成）组成。
+
+语法：arr.toString()
+
+```js
+
+var array = ['Jan', 'Feb', 'Mar', 'Apr'];
+var str = array.toString();
+console.log(str); // Jan,Feb,Mar,Apr
+
+```
+
+当数组直接和字符串做链接操作时，将会自动调用其toString()方法。
+
+```js
+
+var str = ['Jan', 'Feb', 'Mar', 'Apr'] + ',May';
+console.log(str); // "Jan,Feb,Mar,Apr,May"
+// 下面我们来试试鸭式辨型
+var o = {0:'Jan', 1:'Feb', 2:'Mar', length:3};
+var o2 = Array.prototype.toString.call(o);
+console.log(o2); // [object Object]
+console.log(o.toString()==o2); // true
+
+```
+
+有点懵逼
+
+
+
+
+
 
 
