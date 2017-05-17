@@ -1073,5 +1073,57 @@ console.log(Array.prototype.join.call('abc')); // "a,b,c"
 
 ```
 
+### slice
+
+slice()方法将数组中一部分元素浅复制存入新数组对象，并返回这个数组对象。
+
+语法：arr.slice([start[,end]])
+
+参数start指定赋值开始位置的索引，end如果有值则表示赋值结束的索引位置（不包括此位置）。
+
+如果start的值为负数，假如数组长度为length，则表示从start的位置开始复制，此时参数end如果有值，只能是比start大的负数，否则将返回空数组。
+
+slice方法参数为空，同concat方法一样，都是浅复制生成一个新数组。
+
+```js
+
+var array = ["one", "two", "three", "four", "five"];
+console.log(array.slice()); // ["one", "two", "three", "four", "five"]
+console.log(array.slice(2,3)); // ["three"]
+
+```
+
+**浅复制**指当对象被复制时，只是复制了对象的引用，指向的依然是同一个对象。下面来说明slice为什么是浅复制。
+
+```js
+
+var array = [{color:"yellow"}, 2, 3];
+var array2 = array.slice(0,1);
+console.log(array2); //  [{color: "yellow"}]
+array[0]["color"] = "blue";
+console.log(array2); // [{color:"blue"}]
+
+```
+
+由于slice是浅复制，复制到的对象只是一个引用，改变原数组array的值，array2也随之改变。
+
+同时，稍微利用下slice方法第一个参数为辅助时的特性，我们可以非常方便拿到数组的最后一项元素，如下：
+
+```js
+
+console.log([1,2,3].slice(-1));//[3]
+
+```
+
+同上，slice一样受益于鸭式辨型。如下：
+
+```js
+
+var o = {0:{"color":"yellow"}, 1:2, 2:3, length:3};
+var o2 = Array.prototype.slice.call(o,0,1);
+console.log(o2); // [{color:"yellow"}] ,毫无违和感...
+
+```
+
 
 
