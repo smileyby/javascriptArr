@@ -1153,7 +1153,170 @@ console.log(o.toString()==o2); // true
 
 ```
 
-有点懵逼
+可见，`Array.prototype.toString()`方法处理类数组对象时，跟类数组对象直接调用`Object.prototype.toString()`方法结果完全一致，说好的鸭式辩型呢？
+
+根据ES5语义，toString()方法是通用的，可被用于任何对象。如果对象有一个join()方法，将会被调用，其返回值将被返回，没有则调用`Object.prototype.toString()`，为此，我们给o对象添加一个join方法。如下：
+
+```js
+
+var o = {
+  0:'Jan', 
+  1:'Feb', 
+  2:'Mar', 
+  length:3, 
+  join:function(){
+    return Array.prototype.join.call(this);
+  }
+};
+console.log(Array.prototype.toString.call(o)); // "Jan,Feb,Mar"
+
+```
+
+### toLocaleString
+
+toLocalString()类似toString()变型，该字符串由数组中的每个元素的`toLocalString()`返回值经调用`join()`方法连接（由逗号隔开）组成。
+
+语法：arr.toLocaleString()
+
+数组中的元素将开启各自的toLocaleString方法：
+
+*	`Oject`：`Object.prototype.toLocaleString()`
+*	`Number`:`Number.prototype.toLocalString()`
+*	`Date`:`Date.prototype.toLocaleString()`
+
+```js
+
+var array = [{name:'zz'}, 123, 'abc', new Date()];
+var str = array.toLocaleString();
+console.log(str); // [object Object],123,abc,2017/5/18 下午10:06:23
+
+```
+
+其鸭式辩型的写法叶童toString保持一致，如下：
+
+```js
+
+var o = {
+  0:123, 
+  1:'abc', 
+  2:new Date(), 
+  length:3, 
+  join:function(){
+    return Array.prototype.join.call(this);
+  }
+};
+console.log(Array.prototype.toLocaleString.call(o)); // 123,abc,2017/5/18 下午10:06:23
+
+```
+
+### indexOf 
+
+indexOf()方法用于查找元素在数组中第一次出现时的索引位置，如果没有，则返回-1。
+
+语法：arr.indexOf(element,fromIndex=0)
+
+element为需要查找的元素。
+
+formIndex为开始查找的位置，缺省默认为0.如果超出数组最大长度，则返回-1.如果为负值，假设数组长度为length，则从数组的第length + formIndex项开始往数组末尾查找，如果length + formIndex<0 则真个数组都会被查找。
+
+indexOf使用严格相等（即使用 === 去匹配数组中的元素）。
+
+```js
+
+var array = ['abc', 'def', 'ghi', '123'];
+console.log(aray.indexOf('def')); // 1
+console.log(array.indexOf('def'), -1); // -1 此时表示从最后一个元素开始往后查找，因此查找失败返回-1
+console.log(array.indexOf('def',4)); // 1 由于4大于数组长度，此时将查找整个数组，因此返回1
+console.log(array.indexOf(123)); // -1 由于严格匹配，因此并不会匹配到字符串`123`
+
+```
+
+得益于鸭式辩型，indexOf可以处理类数组对象。如下：
+
+```js
+
+var o = {0:'abc', 1:'def', 2:'ghi', length:3};
+console.log(Array.prototype.indexOf.call(o,'ghi',-4)); // 2
+
+```
+
+然而该方法并不支持IE9以下版本，如需更好的支持低版本IE浏览器（IE6~8），请参考[indexOd MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill)
+
+### lastIndexOf
+
+lastIndexOf()方法用于查找元素在数组中最后一次出现时的索引，如果没有，则返回-1.并且它是indexOf的逆向查找，即从数组最后一个往前查找。
+
+语法：arr.lastIndexOf(element,fromIndex = length-1)
+
+element为需要朝赵的元素
+
+formIndex为开始查找的位置，缺省默认为数组长度length-1。如果超出数组长度，由于是逆向查找，则查找整个数组。如果为负值，则从数组的第length + fromIndex项开始往数组开头查找。如果length + fromIndex<0则数组不会被查找。
+
+同indexOf一样，lastIndexOf也是严格匹配数组元素。
+
+举例请参考`indexOf`，不在赘述，兼容低版本IE浏览器（IE6~8），请参考[lastIndexOf MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf#Compatibility)
+
+### includes(ES7)
+
+includes()方法基于**ECMAScript 2016（ES7）规范**，它用来判断当前数组是否包含某个指定的值，如果是，则返回true，否则返回false。
+
+语法：arr.includes(element,fromIndex=0)
+
+element为需要查找的元素
+
+fromIndex表示从改索引位置开始查找element，默认为0，它是正向查找，即索引处往数组末尾查找。
+
+```js
+
+var array = [-0, 1, 2];
+console.log(array.includes(+0)); // true
+console.log(array.includes(1)); // true
+console.log(array.includes(2,-4)); // true
+
+```
+
+以上，includes似乎忽略了`-0`与`+0`的区别，这不是问题，因为JavaScript一直以来都不区分`-0`和`+0`的。
+
+你可能会问，既然有了indexOf方法，为什么又造了一个includes方法，`arr.indexOf(x)>-1`不就等于`arr.includes(x)`?看起来是的，几乎所有的时候他们都等同，唯一的区别就是includes能够发现NaN，而indexOf不能。
+
+```js
+
+var array = [NaN];
+console.log(array.includes(NaN)); // true
+console.log(array.indexOf(NaN)>-1); // false
+
+```
+
+该方法同样受益于鸭式辩型。如下：
+
+```js
+
+var o = {0:'a', 1:'b', 2:'c', length:3};
+var bool = Array.prototype.includes.call(o, 'a');
+console.log(bool); // true
+
+```
+
+该方法只有在Chrome 47、opera 34、Safari 9版本及其更高版本中才被实现。如需支持其他浏览器，请参考[includes MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/includes#Polyfill)
+
+### toSource(非标准)
+
+toSource()方法是**非标准的**,该方法返回数组的源代码，目前只有Firefox实现了它。
+
+语法：arr.toSource()
+
+```js
+
+var arr = ['a', 'b', 'c'];
+console.log(array.source()); // ["a", "b", "c"]
+// 测试鸭式辩型
+var o = {0:'a', 1:'b',2:'c',length:3};
+console.log(Array.prototype.toSource.call(o)); // ["a", "b", "c"]
+
+```
+
+## 遍历方法（12个）
+
 
 
 
