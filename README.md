@@ -1512,6 +1512,106 @@ reduce一样支持鸭式辩型，具体请参考every方法的鸭式辩型写法
 
 其在低版本IE（6~8）的兼容写法请参考[reduce MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce#兼容旧环境（Polyfill）)
 
+### reduceRight
+
+reduceRight()方法接收一个方法作为累加器，数组中的每一个值（从有至左）开始合并，最终为一个值。除了reduce执行方向相反外，其他完全与其一直，请参考reduce方法介绍。
+
+其低版本IE（6~8）的兼容写法请参考[retuceRight MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight#.E5.85.BC.E5.AE.B9.E6.80.A7.E6.97.A7.E7.8E.AF.E5.A2.83.EF.BC.88Polyfill.EF.BC.89)
+
+### entries(ES6)
+
+entries() 方法基于**ECMAScript 2015 （ES6）规范**，返回一个数组迭代器对象，该对象包含数组中每个索引的键值对。
+
+语法：arr.entries()
+
+```js
+
+var array = ['a', 'b', 'c'];
+var iterator = array.entries();
+console.log(iterator.next().value); // [0, "a"]
+console.log(iterator.next().value); // [1, "b"]
+console.log(iterator.next().value); // [2, "c"]
+console.log(iterator.next().value); // undefined, 迭代器处于数组末尾时, 再迭代就会返回undefined
+
+```
+
+很明显，entries 也受益于鸭式辨型，如下：
+
+```js
+
+var o = {0:"a", 1:"b", 2:"c", length:3};
+var iterator = Array.prototype.entries.call(o);
+console.log(iterator.next().value); // [0, "a"]
+console.log(iterator.next().value); // [1, "b"]
+console.log(iterator.next().value); // [2, "c"]
+
+```
+
+由于该方法基于ES6，因此目前并不支持所有浏览器，一下是各浏览器支持版本
+
+<table>
+	<tr>
+		<td>Browser</td>
+		<td>Chrome</td>
+		<td>Firefox (Gecko)</td>
+		<td>Internet Explorer</td>
+		<td>Opera</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>Basic support</td>
+		<td>38</td>
+		<td>28 (28)</td>
+		<td>未实现</td>
+		<td>25</td>
+		<td>7.1</td>
+	</tr>
+</table>
+
+### find&findIndex(ES6)
+
+find()方法基于**ECMAScript（ES6）规范**，返回数组中第一个满足条件的元素（如果有的话），如果没有，返回undefined。
+
+findIndex()方法也基于**ECMAScript（ES6）规范**，它返回数组中第一个满足条件的元素的索引（如果有的话），否则返回-1.
+
+语法：arr.find(fn,thisArg),arr.findIndex(fn,thisArg)
+
+我们发现他们的语法与forEach等十分相似，其实不光语法，find（或findIndex）在参数及其使用注意事项上，均与forEach一直。因此此处略去find（或findIndex）的参数介绍。下面我们看例子：
+
+```js
+
+var array = [1, 3, 5, 7, 8, 9, 10];
+function f(value, index, array){
+  return value%2==0; // 返回偶数
+}
+function f2(value, index, array){
+  return value > 20; // 返回大于20的数
+}
+console.log(array.find(f)); // 8
+console.log(array.find(f2)); // undefined
+console.log(array.findIndex(f)); // 4
+console.log(array.findIndex(f2)); // -1
+
+```
+
+### key(ES6)
+
+keys()方法基于**ECMAScript（ES6）规范**，返回一个数组索引的迭代器。（浏览器实现可能会有调整）
+
+语法：arr.keys()
+
+```js
+
+var array = ["abc", "xyz"];
+var iterator = array.keys();
+console.log(iterator.next()); // Object {value: 0, done: false}
+console.log(iterator.next()); // Object {value: 1, done: false}
+console.log(iterator.next()); // Object {value: undefined, done: false}
+
+```
+
+索引迭代器是什么鬼？
+
 
 
 
