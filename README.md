@@ -1610,7 +1610,121 @@ console.log(iterator.next()); // Object {value: undefined, done: false}
 
 ```
 
-索引迭代器是什么鬼？
+索引迭代器会包含那些没有对应元素的索引，如下：
+
+```js
+
+var array = ["abc", , "xyz"];
+var sparseKeys = Object.keys(array);
+var denseKeys = [...array.keys()];
+console.log(sparseKeys); // ["0", "2"]
+console.log(denseKeys);  // [0, 1, 2]
+
+```
+
+其鸭式辩型写法请参考上述entries方法。
+
+前面我们用Array.from生成一个从0到指定数字的新数组，利用keys也很容易实现。
+
+```js
+
+[...Array(10).keys()]; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[...new Array(10).keys()]; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+```
+
+由于Array的特性，new Array和Array对单个数字的处理相同，因此以上两种均可行。
+
+keys基于ES6，并未完全支持，一下是各浏览器支持版本：
+
+<table>
+	<tr>
+		<td>Browser</td>
+		<td>Chrome</td>
+		<td>Firefox (Gecko)</td>
+		<td>Internet Explorer</td>
+		<td>Opera</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>Basic support</td>
+		<td>38</td>
+		<td>28 (28)</td>
+		<td>未实现</td>
+		<td>25</td>
+		<td>7.1</td>
+	</tr>
+</table>
+
+### values(ES6)
+
+values()方法基于**ECMAScript 2015（ES6）规范**，返回一个数组迭代器对象，该对象包含数组中每一个索引的值。启用法基于与上述entries方法一致。
+
+语法：arr.values()
+
+遗憾的是，现在没有浏览器实现了该方法，因此下面就将就着看看吧。
+
+```js
+
+var array = ["abc", "xyz"];
+var iterator = array.values();
+console.log(iterator.next().value);//abc
+console.log(iterator.next().value);//xyz
+
+```
+
+### Symbol.iterator(ES6)
+
+该方法基于**ECMAScript 2015（ES6）规范**，同values方法功能相同。
+
+语法：arr[Aymbol.iterator]()
+
+```js
+
+var array = ["abc", "xyz"];
+var iterator = array[Symbol.iterator]();
+console.log(iterator.next().value); // abc
+console.log(iterator.next().value); // xyz
+
+```
+
+其鸭式辨型写法请参考上述 entries 方法。
+
+<table>
+	<tr>
+		<td>Browser</td>
+		<td>Chrome</td>
+		<td>Firefox (Gecko)</td>
+		<td>Internet Explorer</td>
+		<td>Opera</td>
+		<td>Safari</td>
+	</tr>
+	<tr>
+		<td>Basic support</td>
+		<td>38</td>
+		<td>36 (36) 1</td>
+		<td>未实现</td>
+		<td>25</td>
+		<td>未实现</td>
+	</tr>
+</table>
+
+## 小结
+
+以上，Array.prototype的各方法基本介绍完毕，这些方法之间存在很多共性。比如：
+
+*	所有插入元素的方法，比如push、unshift，一律返回数组新的长度
+*	所有删除元素的方法，比如：pop、shift、slice一律返回删除的元素，或者返回删除的多个元素组成的数组
+*	部分遍历方法，比如forEach、every、some、filter、map、find、findIndex，他们都包含`function(value,index,array){}`和`thisArg`这两个形参。
+
+Array.prototype的所有方法均具有鸭式辩型这种神奇的特性，他们不止可用来处理数组对象，还可以处理类数组对象。
+
+例如javascript中一个纯天然的类数组对象字符串（String），像join方法（不改变当前对象自身）就完全使用，可惜的是Array.prototype中很多方法均会去试图修改当前对象的length属性，比如：pop、push、shift、unshift方法，操作String方法，操作String对象时，由于String对象的长度本身不可修改，这将导致破除TypeError错误。
+
+Array.prototype本身就是一个数组，并且它的长度为0。
+
+
+
 
 
 
